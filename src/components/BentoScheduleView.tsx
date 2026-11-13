@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { AnimatePresence, motion } from 'motion/react';
 import {
   CheckSquare,
   Edit3,
@@ -28,6 +29,7 @@ import { ReminderSettings } from '../hooks/useScheduleReminder';
 
 interface BentoScheduleViewProps {
   profile: UserProfile;
+  customPhotoUrl?: string | null;
   shift: SchoolShift;
   onSwitchShift: (shift: SchoolShift) => Promise<void>;
   selectedDay: DayKey;
@@ -67,6 +69,7 @@ const THEME_ICON_BG: Record<PastelTheme, string> = {
 
 export const BentoScheduleView: React.FC<BentoScheduleViewProps> = ({
   profile,
+  customPhotoUrl,
   shift,
   onSwitchShift,
   selectedDay,
@@ -165,6 +168,7 @@ export const BentoScheduleView: React.FC<BentoScheduleViewProps> = ({
               <StudentAvatar
                 avatarId={profile.avatarId}
                 fullName={profile.fullName}
+                customPhotoUrl={customPhotoUrl}
                 sizeClass="w-16 h-16 sm:w-20 sm:h-20"
               />
             </div>
@@ -179,7 +183,10 @@ export const BentoScheduleView: React.FC<BentoScheduleViewProps> = ({
                 <span className="capitalize">{todayDateFormatted}</span>
               </div>
               <h1 className="mt-1.5 font-display text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight text-balance">
-                Halo, {firstName}! Semangat sekolah hari ini 🚀
+                Halo, {firstName}! Semangat sekolah hari ini{' '}
+                <span className="animate-cute-wave" aria-hidden="true">
+                  🚀
+                </span>
               </h1>
             </div>
           </div>
@@ -207,11 +214,18 @@ export const BentoScheduleView: React.FC<BentoScheduleViewProps> = ({
         </div>
 
         {/* Daily Vibe / Quote Card */}
-        <div className="lg:col-span-4 bg-[#FFF5CC] border border-[#F5DF96] rounded-3xl p-6 shadow-[0_6px_22px_-8px_rgba(161,98,7,0.12)] flex flex-col justify-between">
+        <motion.div
+          whileHover={{ y: -2 }}
+          transition={{ type: 'spring', stiffness: 320, damping: 22 }}
+          className="lg:col-span-4 bg-[#FFF5CC] border border-[#F5DF96] rounded-3xl p-6 shadow-[0_6px_22px_-8px_rgba(161,98,7,0.12)] flex flex-col justify-between"
+        >
           <div>
             <div className="flex items-center justify-between gap-2">
-              <span className="text-xs font-extrabold text-amber-900">
-                ✨ Daily Vibe · {dayMeta.label}
+              <span className="text-xs font-extrabold text-amber-900 flex items-center gap-1">
+                <span className="inline-block animate-cute-float" aria-hidden="true">
+                  ✨
+                </span>
+                <span>Daily Vibe · {dayMeta.label}</span>
               </span>
               <button
                 type="button"
@@ -230,7 +244,7 @@ export const BentoScheduleView: React.FC<BentoScheduleViewProps> = ({
           <p className="mt-5 text-xs font-semibold text-amber-900/80">
             {dayMeta.emoji} {dayMeta.subtitle} · Ruang pribadi {profile.fullName}
           </p>
-        </div>
+        </motion.div>
       </div>
 
       {/* Live Schedule Reminder & Countdown Strip */}
@@ -252,13 +266,16 @@ export const BentoScheduleView: React.FC<BentoScheduleViewProps> = ({
         {DAYS_META.map((day) => {
           const isActive = selectedDay === day.key;
           return (
-            <button
+            <motion.button
               key={day.key}
               type="button"
               role="tab"
               aria-selected={isActive}
+              whileHover={{ y: -2 }}
+              whileTap={{ scale: 0.94 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 20 }}
               onClick={() => onSelectDay(day.key)}
-              className={`min-h-[44px] px-4 py-2 rounded-2xl text-sm font-bold transition-all active:scale-[0.97] whitespace-nowrap shrink-0 flex items-center gap-1.5 cursor-pointer ${
+              className={`min-h-[44px] px-4 py-2 rounded-2xl text-sm font-bold transition-colors whitespace-nowrap shrink-0 flex items-center gap-1.5 cursor-pointer ${
                 isActive
                   ? 'bg-[#0F766E] text-white shadow-[0_4px_12px_-2px_rgba(15,118,110,0.35)]'
                   : 'bg-white border border-[#ECE6DA] text-slate-700 hover:bg-[#FFFDF7] hover:text-slate-900'
@@ -267,13 +284,21 @@ export const BentoScheduleView: React.FC<BentoScheduleViewProps> = ({
               <span aria-hidden="true">{day.emoji}</span>
               <span className="hidden sm:inline">{day.label}</span>
               <span className="sm:hidden">{day.short}</span>
-            </button>
+            </motion.button>
           );
         })}
       </div>
 
       {/* Main Bento Grid for Selected Day */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={selectedDay}
+          initial={{ opacity: 0, y: 10, scale: 0.99 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: -6, scale: 0.99 }}
+          transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+          className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start"
+        >
         {/* Left/Primary Column: Sesi Pagi + Jam Pelajaran Inti (7 cols) */}
         <div className="lg:col-span-7 space-y-5">
           {/* Card 1: Sesi Pagi / Pembiasaan Karakter */}
@@ -281,7 +306,7 @@ export const BentoScheduleView: React.FC<BentoScheduleViewProps> = ({
             <div className="flex items-start justify-between gap-4">
               <div className="flex items-start gap-3.5">
                 <div className="w-12 h-12 rounded-2xl bg-white/90 flex items-center justify-center text-2xl shrink-0 shadow-2xs">
-                  {schedule.morningEmoji}
+                  <span className="animate-cute-float inline-block">{schedule.morningEmoji}</span>
                 </div>
                 <div>
                   <div className="flex flex-wrap items-center gap-x-2 text-xs font-bold text-emerald-900">
@@ -470,13 +495,13 @@ export const BentoScheduleView: React.FC<BentoScheduleViewProps> = ({
                         {group.items.map((lesson) => (
                           <li
                             key={lesson.id}
-                            className={`py-3.5 flex items-center justify-between gap-3 ${
+                            className={`group py-3.5 flex items-center justify-between gap-3 ${
                               lesson.isBreak ? 'opacity-85' : ''
                             }`}
                           >
                             <div className="flex items-center gap-3.5 min-w-0">
                               <div
-                                className={`w-11 h-11 rounded-xl flex items-center justify-center text-xl shrink-0 ${
+                                className={`w-11 h-11 rounded-xl flex items-center justify-center text-xl shrink-0 transition-transform duration-200 group-hover:scale-110 group-hover:-rotate-6 ${
                                   THEME_ICON_BG[lesson.theme] || THEME_ICON_BG.mint
                                 }`}
                               >
@@ -569,9 +594,9 @@ export const BentoScheduleView: React.FC<BentoScheduleViewProps> = ({
             ) : (
               <ul className="divide-y divide-violet-200/60 mt-1">
                 {schedule.extracurriculars.map((ex) => (
-                  <li key={ex.id} className="py-3 flex items-center justify-between gap-3">
+                  <li key={ex.id} className="group py-3 flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-10 h-10 rounded-xl bg-white/85 flex items-center justify-center text-lg shrink-0">
+                      <div className="w-10 h-10 rounded-xl bg-white/85 flex items-center justify-center text-lg shrink-0 transition-transform duration-200 group-hover:scale-110 group-hover:rotate-6">
                         {ex.emoji}
                       </div>
                       <div className="min-w-0">
@@ -637,8 +662,11 @@ export const BentoScheduleView: React.FC<BentoScheduleViewProps> = ({
               <ul className="divide-y divide-slate-100 mt-1">
                 {dayTasks.slice(0, 4).map((task) => (
                   <li key={task.id} className="py-3 flex items-start gap-3">
-                    <button
+                    <motion.button
                       type="button"
+                      whileTap={{ scale: 0.82 }}
+                      animate={{ scale: task.completed ? [1, 1.22, 1] : 1 }}
+                      transition={{ duration: 0.24 }}
                       onClick={() => onToggleTask(task.id, !task.completed)}
                       aria-label={`Tandai ${task.title}`}
                       className="min-h-[40px] min-w-[40px] -ml-2 flex items-center justify-center text-emerald-700 cursor-pointer shrink-0"
@@ -648,7 +676,7 @@ export const BentoScheduleView: React.FC<BentoScheduleViewProps> = ({
                       ) : (
                         <Square className="w-5 h-5 text-slate-400" />
                       )}
-                    </button>
+                    </motion.button>
                     <div className="min-w-0 flex-1 pt-1.5">
                       <p
                         className={`text-sm font-bold leading-snug ${
@@ -699,31 +727,41 @@ export const BentoScheduleView: React.FC<BentoScheduleViewProps> = ({
             <ul className="divide-y divide-slate-100 mt-1">
               {dayChecklist.slice(0, 5).map((item) => (
                 <li key={item.id} className="py-2.5 flex items-center gap-2">
-                  <button
+                  <motion.button
                     type="button"
+                    whileTap={{ scale: 0.98 }}
                     onClick={() => onToggleChecklist(item.id, !item.checked)}
                     className="w-full min-h-[42px] flex items-center gap-3 text-left cursor-pointer group"
                   >
-                    {item.checked ? (
-                      <CheckSquare className="w-5 h-5 text-emerald-700 shrink-0" />
-                    ) : (
-                      <Square className="w-5 h-5 text-slate-300 group-hover:text-slate-500 shrink-0" />
-                    )}
-                    <span className="text-base shrink-0">{item.emoji}</span>
+                    <motion.span
+                      animate={{ scale: item.checked ? [1, 1.25, 1] : 1 }}
+                      transition={{ duration: 0.24 }}
+                      className="shrink-0 flex items-center"
+                    >
+                      {item.checked ? (
+                        <CheckSquare className="w-5 h-5 text-emerald-700" />
+                      ) : (
+                        <Square className="w-5 h-5 text-slate-300 group-hover:text-slate-500" />
+                      )}
+                    </motion.span>
+                    <span className="text-base shrink-0 transition-transform duration-200 group-hover:scale-115 group-hover:-rotate-6">
+                      {item.emoji}
+                    </span>
                     <span
-                      className={`text-sm font-semibold ${
+                      className={`text-sm font-semibold transition-colors ${
                         item.checked ? 'line-through text-slate-400' : 'text-slate-800'
                       }`}
                     >
                       {item.label}
                     </span>
-                  </button>
+                  </motion.button>
                 </li>
               ))}
             </ul>
           </section>
         </div>
-      </div>
+        </motion.div>
+      </AnimatePresence>
 
       {/* Modals */}
       <LessonModal

@@ -1,11 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import { CheckCircle2, LogOut, RotateCcw, ShieldCheck } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { Camera, CheckCircle2, LogOut, RotateCcw, ShieldCheck, Trash2 } from 'lucide-react';
 import { AVATAR_OPTIONS, CLASS_OPTIONS } from '../data/defaultSchedules';
+import { processProfilePhotoFile } from '../lib/photoStorage';
+import { formatStudentIdLabel } from '../lib/studentAuth';
 import { AvatarId, SchoolShift, UserProfile } from '../types';
+import { ShareInviteCard } from './ShareInviteCard';
 import { StudentAvatar } from './StudentAvatar';
 
 interface ProfileViewProps {
   profile: UserProfile;
+  customPhotoUrl: string | null;
+  onSaveCustomPhoto: (dataUrl: string | null) => void;
   shift: SchoolShift;
   onSwitchShift: (shift: SchoolShift) => Promise<void>;
   onUpdateProfile: (payload: {
@@ -19,6 +24,8 @@ interface ProfileViewProps {
 
 export const ProfileView: React.FC<ProfileViewProps> = ({
   profile,
+  customPhotoUrl,
+  onSaveCustomPhoto,
   shift,
   onSwitchShift,
   onUpdateProfile,
@@ -33,12 +40,31 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   const [resettingAll, setResettingAll] = useState(false);
   const [resetDone, setResetDone] = useState(false);
   const [switchingShift, setSwitchingShift] = useState(false);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [photoError, setPhotoError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     setFullName(profile.fullName);
     setClassName(profile.className);
     setAvatarId(profile.avatarId);
   }, [profile]);
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    setPhotoError(null);
+    setUploadingPhoto(true);
+    try {
+      const dataUrl = await processProfilePhotoFile(file);
+      onSaveCustomPhoto(dataUrl);
+    } catch (err) {
+      setPhotoError(err instanceof Error ? err.message : 'Gagal mengunggah foto.');
+    } finally {
+      setUploadingPhoto(false);
+    }
+  };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -78,6 +104,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           <StudentAvatar
             avatarId={avatarId}
             fullName={fullName || profile.fullName}
+            customPhotoUrl={customPhotoUrl}
             sizeClass="w-20 h-20"
           />
           <div>
@@ -85,7 +112,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               Profil Siswa SMPN 3 KARAWANG
             </h1>
             <p className="text-sm text-slate-500 mt-0.5">
-              {profile.email || 'Akun Siswa Terdaftar'} · Kelas {profile.className}
+              {formatStudentIdLabel(profile.email)} · Kelas {profile.className}
             </p>
           </div>
         </div>
@@ -124,9 +151,62 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             </div>
           </div>
 
+          {/* Upload Foto Profil Sendiri */}
+          <div className="rounded-2xl bg-[#FAF7EE] border border-[#ECE6DA] p-4 space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="text-xs font-bold text-slate-800">
+                  Foto Profil Sendiri (Upload dari HP/Laptop)
+                </p>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  {customPhotoUrl
+                    ? 'Foto pribadimu sedang aktif. Klik hapus jika ingin memakai avatar lucu.'
+                    : 'Upload foto selfie atau foto favoritmu untuk menggantikan avatar bawaan.'}
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handlePhotoUpload}
+                  className="hidden"
+                />
+                <button
+                  type="button"
+                  disabled={uploadingPhoto}
+                  onClick={() => fileInputRef.current?.click()}
+                  className="min-h-[40px] px-3.5 py-2 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 text-xs font-bold text-slate-800 flex items-center gap-1.5 whitespace-nowrap cursor-pointer"
+                >
+                  <Camera className="w-4 h-4 text-[#0F766E]" />
+                  <span>
+                    {uploadingPhoto
+                      ? 'Memproses...'
+                      : customPhotoUrl
+                      ? 'Ganti Foto'
+                      : 'Upload Foto Sendiri'}
+                  </span>
+                </button>
+                {customPhotoUrl && (
+                  <button
+                    type="button"
+                    onClick={() => onSaveCustomPhoto(null)}
+                    className="min-h-[40px] px-3 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 border border-rose-200 text-xs font-bold text-rose-800 flex items-center gap-1.5 whitespace-nowrap cursor-pointer"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Hapus Foto</span>
+                  </button>
+                )}
+              </div>
+            </div>
+            {photoError && <p className="text-xs font-semibold text-rose-700">{photoError}</p>}
+          </div>
+
           <div>
             <label className="block text-xs font-bold text-slate-700 mb-2">
-              Pilih Foto / Avatar Lucu
+              {customPhotoUrl
+                ? 'Avatar Cadangan (Jika Foto Dihapus)'
+                : 'Atau Pilih Avatar Lucu'}
             </label>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {AVATAR_OPTIONS.map((av) => {
@@ -278,6 +358,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             <span>Keluar dari Akun (Logout)</span>
           </button>
         </div>
+
+        <ShareInviteCard compact />
       </div>
     </div>
   );

@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { onAuthStateChanged, signOut, User } from 'firebase/auth';
 import { Backpack, BookOpen, CalendarDays, ClipboardList, LogOut, UserCircle2 } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { AuthScreen } from './components/AuthScreen';
 import { BagChecklistView } from './components/BagChecklistView';
 import { BentoScheduleView } from './components/BentoScheduleView';
+import { ConfettiBurst, ConfettiCelebration } from './components/ConfettiCelebration';
 import { HomeworkView } from './components/HomeworkView';
 import { ProfileView } from './components/ProfileView';
 import { ActiveReminderBanner, ReminderModal } from './components/ReminderBannerAndModal';
@@ -12,6 +13,7 @@ import { StudentAvatar } from './components/StudentAvatar';
 import { buildDefaultDaySchedule, DAYS_META, getTodayDayKey } from './data/defaultSchedules';
 import { useScheduleReminder } from './hooks/useScheduleReminder';
 import { auth } from './lib/firebase';
+import { getUserCustomPhoto, setUserCustomPhoto } from './lib/photoStorage';
 import {
   addChecklistItem,
   addHomeworkTask,
@@ -70,6 +72,12 @@ export default function App() {
   const [errorBanner, setErrorBanner] = useState<string | null>(null);
   const [reminderModalOpen, setReminderModalOpen] = useState(false);
   const [schoolShift, setSchoolShift] = useState<SchoolShift>('pagi');
+  const [customPhoto, setCustomPhoto] = useState<string | null>(null);
+  const [confettiBurst, setConfettiBurst] = useState<ConfettiBurst | null>(null);
+
+  const handleClearConfetti = useCallback(() => {
+    setConfettiBurst(null);
+  }, []);
 
   const reminder = useScheduleReminder(authUser?.uid ?? null, schedules);
 
@@ -80,6 +88,7 @@ export default function App() {
       if (!user) {
         setBootstrappedUid(null);
         setProfile(null);
+        setCustomPhoto(null);
         setTasks([]);
         setChecklist([]);
         setDataLoading(false);
@@ -92,6 +101,7 @@ export default function App() {
         await ensureUserBootstrap(user);
         const savedShift = getUserShift(user.uid);
         setSchoolShift(savedShift);
+        setCustomPhoto(getUserCustomPhoto(user.uid));
         setBootstrappedUid(user.uid);
       } catch (err) {
         setErrorBanner(
@@ -110,6 +120,7 @@ export default function App() {
     const uid = authUser.uid;
     const savedShift = getUserShift(uid);
     setSchoolShift(savedShift);
+    setCustomPhoto(getUserCustomPhoto(uid));
     setSchedules(buildInitialScheduleMap(uid, savedShift));
 
     const handleSubError = (err: Error) => {
@@ -170,6 +181,29 @@ export default function App() {
     setUserShift(authUser.uid, nextShift);
     setSchoolShift(nextShift);
     await resetAllSchedulesToDefault(authUser.uid, nextShift);
+  };
+
+  const handleSaveCustomPhoto = (dataUrl: string | null) => {
+    if (!authUser) return;
+    setUserCustomPhoto(authUser.uid, dataUrl);
+    setCustomPhoto(dataUrl);
+  };
+
+  const handleToggleChecklist = async (itemId: string, checked: boolean) => {
+    if (!authUser) return;
+    const targetItem = checklist.find((item) => item.id === itemId);
+    if (checked && targetItem) {
+      const dayItems = checklist.filter((item) => item.dayKey === targetItem.dayKey);
+      const willCompleteAll =
+        dayItems.length > 0 &&
+        dayItems.every((item) => (item.id === itemId ? true : item.checked));
+      if (willCompleteAll) {
+        const dayLabel =
+          DAYS_META.find((d) => d.key === targetItem.dayKey)?.label || targetItem.dayKey;
+        setConfettiBurst({ id: Date.now(), dayLabel });
+      }
+    }
+    await toggleChecklistItem(authUser.uid, itemId, checked);
   };
 
   if (!authReady) {
@@ -266,6 +300,7 @@ export default function App() {
           <StudentAvatar
             avatarId={effectiveProfile.avatarId}
             fullName={effectiveProfile.fullName}
+            customPhotoUrl={customPhoto}
             sizeClass="w-8 h-8"
           />
         </button>
@@ -326,6 +361,7 @@ export default function App() {
               {activeSection === 'jadwal' && (
                 <BentoScheduleView
                   profile={effectiveProfile}
+                  customPhotoUrl={customPhoto}
                   shift={schoolShift}
                   onSwitchShift={handleSwitchShift}
                   selectedDay={selectedDay}
@@ -341,9 +377,7 @@ export default function App() {
                   onToggleTask={(taskId, completed) =>
                     toggleHomeworkTask(authUser.uid, taskId, completed)
                   }
-                  onToggleChecklist={(itemId, checked) =>
-                    toggleChecklistItem(authUser.uid, itemId, checked)
-                  }
+                  onToggleChecklist={handleToggleChecklist}
                   onNavigateSection={setActiveSection}
                   reminderInfo={{
                     todayLabel: reminder.todayLabel,
@@ -377,9 +411,7 @@ export default function App() {
                   onSelectDay={setSelectedDay}
                   items={checklist}
                   onAddItem={(payload) => addChecklistItem(authUser.uid, payload)}
-                  onToggleItem={(itemId, checked) =>
-                    toggleChecklistItem(authUser.uid, itemId, checked)
-                  }
+                  onToggleItem={handleToggleChecklist}
                   onDeleteItem={(itemId) => deleteChecklistItem(authUser.uid, itemId)}
                   onResetDayChecklist={(dayKey) =>
                     resetDayChecklistToDefault(authUser.uid, dayKey)
@@ -390,6 +422,8 @@ export default function App() {
               {activeSection === 'profil' && (
                 <ProfileView
                   profile={effectiveProfile}
+                  customPhotoUrl={customPhoto}
+                  onSaveCustomPhoto={handleSaveCustomPhoto}
                   shift={schoolShift}
                   onSwitchShift={handleSwitchShift}
                   onUpdateProfile={(payload) => updateUserProfile(authUser.uid, payload)}
@@ -442,6 +476,8 @@ export default function App() {
         onRequestBrowserPermission={reminder.requestBrowserPermission}
         onTestReminder={reminder.triggerTestReminder}
       />
+
+      <ConfettiCelebration burst={confettiBurst} onComplete={handleClearConfetti} />
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { motion } from 'motion/react';
 import { CheckSquare, Edit3, Plus, Search, Square, Trash2 } from 'lucide-react';
 import { DAYS_META } from '../data/defaultSchedules';
 import { DayKey, HomeworkTask } from '../types';
@@ -69,7 +70,10 @@ export const HomeworkView: React.FC<HomeworkViewProps> = ({
             Catatan Pribadi · Tersimpan aman di akunmu
           </p>
           <h1 className="mt-1 font-display text-2xl sm:text-3xl font-extrabold text-slate-900">
-            📝 Catatan PR & Tugas Sekolah
+            <span className="inline-block animate-cute-float mr-1.5" aria-hidden="true">
+              📝
+            </span>
+            Catatan PR & Tugas Sekolah
           </h1>
           <p className="mt-1.5 text-sm text-slate-600 tabular-nums">
             {pendingCount} tugas menunggu dikerjakan · {doneCount} sudah selesai
@@ -164,8 +168,11 @@ export const HomeworkView: React.FC<HomeworkViewProps> = ({
                   className="py-4 flex items-start justify-between gap-3"
                 >
                   <div className="flex items-start gap-3 min-w-0 flex-1">
-                    <button
+                    <motion.button
                       type="button"
+                      whileTap={{ scale: 0.82 }}
+                      animate={{ scale: task.completed ? [1, 1.22, 1] : 1 }}
+                      transition={{ duration: 0.25 }}
                       onClick={() => onToggleTask(task.id, !task.completed)}
                       aria-label={`Tandai ${task.title}`}
                       className="min-h-[44px] min-w-[44px] -ml-2 flex items-center justify-center cursor-pointer shrink-0"
@@ -175,7 +182,7 @@ export const HomeworkView: React.FC<HomeworkViewProps> = ({
                       ) : (
                         <Square className="w-5 h-5 text-slate-400 hover:text-slate-600" />
                       )}
-                    </button>
+                    </motion.button>
 
                     <div className="min-w-0 flex-1 pt-2">
                       <p

@@ -29,6 +29,7 @@ import {
   UserProfile,
 } from '../types';
 import { db, handleFirestoreError } from './firebase';
+import { setUserCustomPhoto } from './photoStorage';
 
 function clampString(val: string, maxLen: number): string {
   return val.trim().slice(0, maxLen);
@@ -39,6 +40,7 @@ export interface BootstrapExtraProfile {
   className?: string;
   avatarId?: AvatarId;
   shift?: SchoolShift;
+  customPhoto?: string | null;
 }
 
 export function getUserShift(uid: string): SchoolShift {
@@ -102,6 +104,9 @@ export function ensureUserBootstrap(
     const avatarId: AvatarId = effectiveExtra?.avatarId || 'mint';
     const shift: SchoolShift = effectiveExtra?.shift || getUserShift(user.uid);
     setUserShift(user.uid, shift);
+    if (effectiveExtra?.customPhoto) {
+      setUserCustomPhoto(user.uid, effectiveExtra.customPhoto);
+    }
     const email = clampString(user.email || '', 160);
 
     const batch = writeBatch(db);

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion } from 'motion/react';
 import { CheckSquare, Plus, RotateCcw, Square, Trash2 } from 'lucide-react';
 import { DAYS_META } from '../data/defaultSchedules';
 import { BagChecklistItem, DayKey } from '../types';
@@ -68,7 +69,10 @@ export const BagChecklistView: React.FC<BagChecklistViewProps> = ({
             Persiapan Sekolah · Otomatis tersimpan ke akun pribadimu
           </p>
           <h1 className="mt-1 font-display text-2xl sm:text-3xl font-extrabold text-slate-900">
-            🎒 Checklist Persiapan Tas · {dayMeta.label}
+            <span className="inline-block animate-cute-float mr-1.5" aria-hidden="true">
+              🎒
+            </span>
+            Checklist Persiapan Tas · {dayMeta.label}
           </h1>
           <p className="mt-1.5 text-sm text-slate-600 tabular-nums">
             {checkedCount} dari {dayItems.length} perlengkapan sudah masuk tas ({progressPct}%)
@@ -81,9 +85,11 @@ export const BagChecklistView: React.FC<BagChecklistViewProps> = ({
             <span>{progressPct}%</span>
           </div>
           <div className="h-3.5 w-full rounded-full bg-white border border-orange-200/70 overflow-hidden">
-            <div
-              className="h-full bg-[#0F766E] rounded-full transition-all duration-300"
-              style={{ width: `${progressPct}%` }}
+            <motion.div
+              className="h-full bg-gradient-to-r from-[#0F766E] to-[#34D399] rounded-full"
+              initial={false}
+              animate={{ width: `${progressPct}%` }}
+              transition={{ type: 'spring', stiffness: 220, damping: 24 }}
             />
           </div>
         </div>
@@ -170,7 +176,7 @@ export const BagChecklistView: React.FC<BagChecklistViewProps> = ({
         </div>
 
         {/* Checklist List */}
-        <div className="lg:col-span-7 bg-white border border-[#EAE7E0] rounded-2xl p-6 shadow-[0_2px_12px_-4px_rgba(24,39,75,0.06)]">
+        <div className="lg:col-span-7 bg-white border border-[#ECE6DA] rounded-3xl p-6 shadow-[0_6px_22px_-8px_rgba(24,39,75,0.07)]">
           <div className="flex items-center justify-between gap-3 pb-4 border-b border-slate-100">
             <h2 className="font-display text-lg font-bold text-slate-900">
               Daftar Isi Tas · {dayMeta.label}
@@ -186,6 +192,22 @@ export const BagChecklistView: React.FC<BagChecklistViewProps> = ({
             </button>
           </div>
 
+          {dayItems.length > 0 && checkedCount === dayItems.length && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.94, y: -6 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ type: 'spring', stiffness: 320, damping: 20 }}
+              className="mt-4 rounded-2xl bg-[#E5F9EE] border border-[#C2EAD4] px-4 py-3 flex items-center gap-3"
+            >
+              <span className="text-xl shrink-0 animate-cute-wave" aria-hidden="true">
+                🎉
+              </span>
+              <p className="text-xs sm:text-sm font-bold text-emerald-950">
+                Mantap! Semua perlengkapan hari {dayMeta.label} sudah masuk tas 100%.
+              </p>
+            </motion.div>
+          )}
+
           {dayItems.length === 0 ? (
             <div className="py-10 text-center">
               <p className="text-sm font-semibold text-slate-700">
@@ -199,25 +221,34 @@ export const BagChecklistView: React.FC<BagChecklistViewProps> = ({
             <ul className="divide-y divide-slate-100">
               {dayItems.map((item) => (
                 <li key={item.id} className="py-3 flex items-center justify-between gap-2">
-                  <button
+                  <motion.button
                     type="button"
+                    whileTap={{ scale: 0.98 }}
                     onClick={() => onToggleItem(item.id, !item.checked)}
                     className="flex-1 min-h-[44px] flex items-center gap-3 text-left cursor-pointer group"
                   >
-                    {item.checked ? (
-                      <CheckSquare className="w-5 h-5 text-emerald-700 shrink-0" />
-                    ) : (
-                      <Square className="w-5 h-5 text-slate-300 group-hover:text-slate-500 shrink-0" />
-                    )}
-                    <span className="text-xl shrink-0">{item.emoji}</span>
+                    <motion.span
+                      animate={{ scale: item.checked ? [1, 1.25, 1] : 1 }}
+                      transition={{ duration: 0.25 }}
+                      className="shrink-0 flex items-center"
+                    >
+                      {item.checked ? (
+                        <CheckSquare className="w-5 h-5 text-emerald-700" />
+                      ) : (
+                        <Square className="w-5 h-5 text-slate-300 group-hover:text-slate-500" />
+                      )}
+                    </motion.span>
+                    <span className="text-xl shrink-0 transition-transform duration-200 group-hover:scale-115 group-hover:-rotate-6">
+                      {item.emoji}
+                    </span>
                     <span
-                      className={`text-sm sm:text-base font-semibold ${
+                      className={`text-sm sm:text-base font-semibold transition-colors ${
                         item.checked ? 'line-through text-slate-400' : 'text-slate-900'
                       }`}
                     >
                       {item.label}
                     </span>
-                  </button>
+                  </motion.button>
 
                   <button
                     type="button"

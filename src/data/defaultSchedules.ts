@@ -1,4 +1,8 @@
 import type { AvatarId, DayKey, DaySchedule, PastelTheme, SchoolShift } from '../types';
+import avatarMint from '../assets/images/avatar_mint_scholar_1794585478926.jpg';
+import avatarYellow from '../assets/images/avatar_yellow_creator_1794585480481.jpg';
+import avatarSky from '../assets/images/avatar_sky_athlete_1794585480935.jpg';
+import avatarLavender from '../assets/images/avatar_lavender_reader_1794585479576.jpg';
 
 export interface AvatarOption {
   id: AvatarId;
@@ -12,25 +16,25 @@ export const AVATAR_OPTIONS: AvatarOption[] = [
     id: 'mint',
     label: 'Cendekia Mint',
     bgClass: 'bg-[#D8F3DC]',
-    src: '/src/assets/images/avatar_mint_scholar_1794585478926.jpg',
+    src: avatarMint,
   },
   {
     id: 'yellow',
     label: 'Kreator Ceria',
     bgClass: 'bg-[#FFF3BF]',
-    src: '/src/assets/images/avatar_yellow_creator_1794585480481.jpg',
+    src: avatarYellow,
   },
   {
     id: 'sky',
     label: 'Penggalang Aktif',
     bgClass: 'bg-[#D0EBFF]',
-    src: '/src/assets/images/avatar_sky_athlete_1794585480935.jpg',
+    src: avatarSky,
   },
   {
     id: 'lavender',
     label: 'Sahabat Literasi',
     bgClass: 'bg-[#E5DBFF]',
-    src: '/src/assets/images/avatar_lavender_reader_1794585479576.jpg',
+    src: avatarLavender,
   },
 ];
 
