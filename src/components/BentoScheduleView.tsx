@@ -22,6 +22,7 @@ import {
   SchoolShift,
   UserProfile,
 } from '../types';
+import { DailyStudyTipsCard } from './DailyStudyTipsCard';
 import { EkskulModal, HomeworkModal, LessonModal, MorningModal, QuoteModal } from './Modals';
 import { ReminderStripCard } from './ReminderBannerAndModal';
 import { StudentAvatar } from './StudentAvatar';
@@ -256,6 +257,9 @@ export const BentoScheduleView: React.FC<BentoScheduleViewProps> = ({
         settings={reminderInfo.settings}
         onOpenSettings={reminderInfo.onOpenSettings}
       />
+
+      {/* Daily Study Tips Card */}
+      <DailyStudyTipsCard selectedDay={selectedDay} dayLabel={dayMeta.label} />
 
       {/* Day Navigation Strip (Senin s.d. Minggu) */}
       <div

@@ -36,17 +36,18 @@ git push -u origin main
    - **Framework Preset**: `Vite`
    - **Build Command**: `npm run build`
    - **Output Directory**: `dist`
-4. Klik **Deploy**. Setelah terhubung, setiap kali Anda `git push` ke `main`, Vercel otomatis membangun dan mempublikasikan versi terbaru.
-5. *(Opsional)* Jika ingin deploy lewat GitHub Actions CLI, tambahkan repository secrets `VERCEL_TOKEN`, `VERCEL_ORG_ID`, dan `VERCEL_PROJECT_ID` di GitHub Settings → Secrets and variables → Actions.
+4. Klik **Deploy**. Setelah selesai, salin link asli dari tombol **Visit** di dashboard Vercel Anda (contoh: `https://nama-project-anda.vercel.app`) — jangan gunakan nama domain yang belum dideploy agar tidak muncul `404 DEPLOYMENT_NOT_FOUND`.
+5. Setiap kali Anda `git push` ke `main`, Vercel otomatis membangun dan mempublikasikan versi terbaru.
+6. *(Opsional)* Jika ingin deploy lewat GitHub Actions CLI, tambahkan repository secrets `VERCEL_TOKEN`, `VERCEL_ORG_ID`, dan `VERCEL_PROJECT_ID` di GitHub Settings → Secrets and variables → Actions.
 
 ### 3. Wajib: Daftarkan Domain Vercel di Firebase Auth
 
-Agar tombol **Masuk dengan Google** dan autentikasi berjalan di domain Vercel Anda:
+Agar login **Nama & PIN** berjalan di domain Vercel Anda:
 
 1. Buka [Firebase Console](https://console.firebase.google.com/) dan pilih proyek `xenodochial-clover-g6tvw`.
 2. Masuk ke **Authentication → Settings → Authorized domains**.
-3. Klik **Add domain**, lalu masukkan domain Vercel Anda (misalnya `mapel-smpn3karawang.vercel.app` atau custom domain Anda).
-4. Pastikan metode **Google** dan **Email/Password** sudah aktif di **Authentication → Sign-in method**.
+3. Klik **Add domain**, lalu masukkan domain `.vercel.app` asli milik project Vercel Anda.
+4. Pastikan metode **Email/Password** sudah aktif di **Authentication → Sign-in method** (dipakai di balik layar untuk akun **Nama & PIN** siswa).
 
 ### Variabel Lingkungan (Opsional)
 

@@ -41,7 +41,8 @@ function getInitialAuthMode(): 'login' | 'register' {
   if (typeof window === 'undefined') return 'login';
   const params = new URLSearchParams(window.location.search);
   const modeParam = params.get('mode')?.toLowerCase();
-  if (modeParam === 'daftar' || modeParam === 'register') {
+  const path = window.location.pathname.toLowerCase();
+  if (modeParam === 'daftar' || modeParam === 'register' || path === '/daftar' || path === '/register') {
     return 'register';
   }
   return 'login';

@@ -359,3 +359,117 @@ export function buildDefaultChecklistForDay(dayKey: DayKey): { label: string; em
       ];
   }
 }
+
+export interface StudyTip {
+  id: string;
+  dayKey: DayKey;
+  emoji: string;
+  category: string;
+  title: string;
+  tip: string;
+}
+
+export const DAILY_STUDY_TIPS: StudyTip[] = [
+  {
+    id: 'tip-senin-1',
+    dayKey: 'senin',
+    emoji: '🚀',
+    category: 'Awali Pekan',
+    title: 'Tentukan 1 Target Kecil Hari Ini',
+    tip: 'Daripada bingung semua tugas sekaligus, pilih satu PR atau bab paling penting untuk diselesaikan duluan sepulang sekolah.',
+  },
+  {
+    id: 'tip-senin-2',
+    dayKey: 'senin',
+    emoji: '🍅',
+    category: 'Teknik Pomodoro',
+    title: 'Fokus 25 Menit, Istirahat 5 Menit',
+    tip: 'Pasang timer 25 menit tanpa menengok HP, lalu beri hadiah istirahat 5 menit untuk minum atau peregangan ringan.',
+  },
+  {
+    id: 'tip-selasa-1',
+    dayKey: 'selasa',
+    emoji: '📝',
+    category: 'Catat Cerdas',
+    title: 'Pakai 3 Warna Stabilo Saat Merangkum',
+    tip: 'Gunakan warna berbeda untuk rumus penting, kata kunci baru, dan contoh soal supaya otak lebih cepat mengingat saat ulangan.',
+  },
+  {
+    id: 'tip-selasa-2',
+    dayKey: 'selasa',
+    emoji: '📖',
+    category: 'Literasi Aktif',
+    title: 'Ceritakan Ulang dengan Bahasamu Sendiri',
+    tip: 'Setelah membaca satu halaman IPA atau IPS, coba jelaskan isinya dalam 2 kalimat seolah sedang mengajari teman sebangku.',
+  },
+  {
+    id: 'tip-rabu-1',
+    dayKey: 'rabu',
+    emoji: '💧',
+    category: 'Energi Otak',
+    title: 'Minum Air Putih Sebelum Mulai Belajar',
+    tip: 'Dehidrasi ringan bikin cepat mengantuk di kelas. Siapkan tumbler minum di meja belajar agar konsentrasi tetap segar!',
+  },
+  {
+    id: 'tip-rabu-2',
+    dayKey: 'rabu',
+    emoji: '🧮',
+    category: 'Trik Matematika',
+    title: 'Latihan 3 Soal Setiap Hari Lebih Ampuh',
+    tip: 'Mengerjakan 3 soal Matematika secara rutin tiap sore jauh lebih efektif daripada menghafal semalam suntuk sebelum ujian.',
+  },
+  {
+    id: 'tip-kamis-1',
+    dayKey: 'kamis',
+    emoji: '🎒',
+    category: 'Disiplin Waktu',
+    title: 'Siapkan Tas Malam Hari Sebelum Tidur',
+    tip: 'Centang Checklist Tas di aplikasi MAPEL setiap jam 20.00 agar pagi hari berangkat ke SMPN 3 KARAWANG lebih tenang tanpa terburu-buru.',
+  },
+  {
+    id: 'tip-kamis-2',
+    dayKey: 'kamis',
+    emoji: '🗣️',
+    category: 'Bahasa & Komunikasi',
+    title: 'Catat 3 Kosakata Baru Setiap Hari',
+    tip: 'Kumpulkan 3 kata baru Bahasa Inggris atau Bahasa Sunda di buku kecilmu—dalam sebulan kamu sudah menguasai hampir 100 kata baru!',
+  },
+  {
+    id: 'tip-jumat-1',
+    dayKey: 'jumat',
+    emoji: '🌿',
+    category: 'Suasana Positif',
+    title: 'Meja Rapi Bikin Pikiran Lebih Tenang',
+    tip: 'Luangkan 3 menit untuk merapikan buku dan alat tulis sebelum belajar. Meja yang bersih membantu otak lebih cepat fokus.',
+  },
+  {
+    id: 'tip-jumat-2',
+    dayKey: 'jumat',
+    emoji: '🤝',
+    category: 'Belajar Bareng',
+    title: 'Jangan Ragu Bertanya ke Guru atau Teman',
+    tip: 'Bertanya saat belum paham bukan berarti lemah—justru itu tanda kamu berani ingin tahu dan siap berkembang lebih baik.',
+  },
+  {
+    id: 'tip-sabtu-1',
+    dayKey: 'sabtu',
+    emoji: '🎨',
+    category: 'Kreativitas & P5',
+    title: 'Seimbangkan Akademik dengan Bakatmu',
+    tip: 'Hari Sabtu cocok untuk mengasah hobi, olahraga, atau proyek P5 bersama kelompok sambil tetap menjaga jadwal istirahat.',
+  },
+  {
+    id: 'tip-minggu-1',
+    dayKey: 'minggu',
+    emoji: '😴',
+    category: 'Recharge Energi',
+    title: 'Tidur Cukup 8 Jam untuk Senin Segar',
+    tip: 'Otak mengunci materi pelajaran saat kamu tidur nyenyak. Matikan layar HP 30 menit sebelum tidur agar besok pagi bangun penuh semangat!',
+  },
+];
+
+export function getDefaultTipIndexForDay(dayKey: DayKey): number {
+  const idx = DAILY_STUDY_TIPS.findIndex((item) => item.dayKey === dayKey);
+  return idx >= 0 ? idx : 0;
+}
+
